@@ -477,7 +477,14 @@ async fn handle_engine_request(
                     let embedding: Vec<f32> = utility
                         .as_array()
                         .map(|a| a.iter().map(|v| v.as_f64().unwrap_or(0.0) as f32).collect())
-                        .unwrap_or_default();
+                    let embedding: Vec<f32> = utility
+                        .as_array()
+                        .ok_or_else(|| "Embedding is not an array")?
+                        .iter()
+                        .map(|v| v.as_f64().map(|f| f as f32).ok_or_else(|| "Invalid embedding value"))
+                        .collect::<Result<Vec<f32>, _>>()
+                        .map_err(|e| error!("Embedding extraction error: {}", e))
+                        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
                     return Json(EmbeddingResponse {
                         object: "list".into(),
                         data: vec![EmbeddingData {
