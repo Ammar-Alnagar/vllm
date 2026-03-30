@@ -345,7 +345,18 @@ async fn embeddings(
 
     let prompt_token_ids: Vec<u32> = Python::with_gil(|py| {
         let renderer = state.renderer.bind(py);
-        let tokenizer = renderer.getattr("renderer").and_then(|r| r.getattr("tokenizer")).expect("Failed to get tokenizer");
+    let prompt_token_ids: Vec<u32> = Python::with_gil(|py| {
+        let renderer = state.renderer.bind(py);
+        let tokenizer = renderer.getattr("renderer")?.getattr("tokenizer")?;
+        let input_str = match &payload.input {
+            serde_json::Value::String(s) => s.clone(),
+            _ => "".into(), // Handle array of strings if needed
+        };
+        tokenizer
+            .call_method1("encode", (input_str,))
+            .and_then(|v| v.extract())
+            .unwrap_or_default()
+    });
         let input_str = match &payload.input {
             serde_json::Value::String(s) => s.clone(),
             _ => "".into(), // Handle array of strings if needed
