@@ -417,15 +417,13 @@ async fn handle_engine_request(
 
     let msg = rmp_serde::to_vec(&engine_req).unwrap();
 
-    static ROUND_ROBIN: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
-
-    {
         let idents = state.engine_identities.lock().await;
         if idents.is_empty() {
             warn!("No engine registered yet!");
             return (StatusCode::SERVICE_UNAVAILABLE, "No engine available").into_response();
         }
         let idx = ROUND_ROBIN.fetch_add(1, std::sync::atomic::Ordering::Relaxed) % idents.len();
+        let identity = idents[idx].clone();
         let identity = idents[idx].clone();
         let mut zmq_msg = zeromq::ZmqMessage::from(identity);
         zmq_msg.push_back(bytes::Bytes::from_static(b"")); // empty delimiter
