@@ -292,7 +292,25 @@ async fn completions(
 
     let prompt_token_ids: Vec<u32> = Python::with_gil(|py| {
         let renderer = state.renderer.bind(py);
-        let tokenizer = renderer.getattr("renderer").and_then(|r| r.getattr("tokenizer")).expect("Failed to get tokenizer");
+    let prompt_token_ids: Vec<u32> = Python::with_gil(|py| {
+        let renderer = state.renderer.bind(py);
+        let tokenizer = renderer.getattr("renderer").and_then(|r| r.getattr("tokenizer")).map_err(|e| {
+            error!("Failed to get tokenizer: {:?}", e);
+            PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Failed to get tokenizer")
+        })?;
+        let prompt_str = match &payload.prompt {
+            serde_json::Value::String(s) => s.clone(),
+            _ => "".into(),
+        };
+        tokenizer
+            .call_method1("encode", (prompt_str,))
+            .map_err(|e| {
+                error!("Failed to encode prompt: {:?}", e);
+                e
+            })?
+            .extract()
+            .unwrap_or_default()
+    });
         let prompt_str = match &payload.prompt {
             serde_json::Value::String(s) => s.clone(),
             _ => "".into(),
