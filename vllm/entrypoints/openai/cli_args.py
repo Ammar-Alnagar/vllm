@@ -348,6 +348,13 @@ def make_arg_parser(parser: FlexibleArgumentParser) -> FlexibleArgumentParser:
     parser = FrontendArgs.add_cli_args(parser)
     parser = AsyncEngineArgs.add_cli_args(parser)
 
+    parser.add_argument(
+        "--use-python-router",
+        action="store_true",
+        default=False,
+        help="Use the legacy Python FastAPI router instead of the Rust router.",
+    )
+
     return parser
 
 

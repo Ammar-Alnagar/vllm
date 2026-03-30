@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
 
 import argparse
+import asyncio
 import signal
 import time
 
@@ -115,11 +116,20 @@ class ServeSubcommand(CLISubcommand):
         if args.api_server_count < 1:
             run_headless(args)
         elif args.api_server_count > 1:
+            if not getattr(args, "use_python_router", False):
+                logger.warning(
+                    "Rust router currently only supports single API server. "
+                    "api_server_count > 1 is requested, falling back to Python."
+                )
             run_multi_api_server(args)
         else:
             # Single API server (this process).
             args.api_server_count = None
-            uvloop.run(run_server(args))
+
+            if not getattr(args, "use_python_router", False):
+                uvloop.run(run_rust_server(args))
+            else:
+                uvloop.run(run_server(args))
 
     def validate(self, args: argparse.Namespace) -> None:
         validate_parsed_serve_args(args)
@@ -233,6 +243,101 @@ def run_headless(args: argparse.Namespace):
             logger.info("Waiting up to %d seconds for processes to exit", timeout)
         engine_manager.shutdown(timeout=timeout)
         logger.info("Shutting down.")
+
+
+async def run_rust_server(args: argparse.Namespace):
+    from vllm.entrypoints.openai.api_server import (
+        build_async_engine_client,
+        setup_server,
+    )
+
+    listen_address, sock = setup_server(args)
+    # Extract host and port from listen_address (e.g. http://0.0.0.0:8000)
+    import os
+    import pickle
+    import subprocess
+    import tempfile
+    from urllib.parse import urlparse
+
+    parsed_url = urlparse(listen_address)
+    host = parsed_url.hostname or "0.0.0.0"
+    port = parsed_url.port or 8000
+
+    async with build_async_engine_client(args) as engine_client:
+        # Get ZMQ addresses
+        # We need the input/output addresses for the engine
+        # In single API server mode, these are typically IPC or TCP addresses
+        from vllm.v1.engine.utils import get_engine_zmq_addresses
+
+        addresses = get_engine_zmq_addresses(engine_client.vllm_config, 1)
+
+        # Serialize model config to a temporary file for the Rust server
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            pickle.dump(engine_client.model_config, f)
+            model_config_path = f.name
+
+        process = None
+        try:
+            # Launch Rust server as a subprocess
+            # Find the binary - it should be in the same directory as vllm/
+            # or installed in PATH
+            import shutil
+
+            rust_binary = shutil.which("vllm-router")
+            if not rust_binary:
+                # Fallback to look in build directory or current directory
+                possible_paths = [
+                    "vllm-router/target/release/vllm-router",
+                    "target/release/vllm-router",
+                ]
+                for p in possible_paths:
+                    if os.path.exists(p):
+                        rust_binary = os.path.abspath(p)
+                        break
+
+            if not rust_binary:
+                logger.error(
+                    "Could not find vllm-router binary. "
+                    "Please ensure it is built and installed."
+                )
+                # Fallback to Python server
+                from vllm.entrypoints.openai.api_server import build_and_serve
+
+                shutdown_task = await build_and_serve(
+                    engine_client, listen_address, sock, args
+                )
+                await shutdown_task
+                return
+
+            cmd = [
+                rust_binary,
+                "--host",
+                host,
+                "--port",
+                str(port),
+                "--input-address",
+                addresses.inputs[0],
+                "--output-address",
+                addresses.outputs[0],
+                "--model-config-pickle",
+                model_config_path,
+            ]
+
+            logger.info("Launching Rust server: %s", " ".join(cmd))
+            process = subprocess.Popen(cmd)
+
+            # Wait for the process to exit or for a signal
+            while True:
+                if process.poll() is not None:
+                    break
+                await asyncio.sleep(1)
+
+        finally:
+            if os.path.exists(model_config_path):
+                os.remove(model_config_path)
+            if process and process.poll() is None:
+                process.terminate()
+                process.wait()
 
 
 def run_multi_api_server(args: argparse.Namespace):

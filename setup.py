@@ -18,6 +18,7 @@ import torch
 from packaging.version import Version, parse
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
+from setuptools_rust import Binding, RustExtension
 from setuptools_scm import get_version
 from torch.utils.cpp_extension import CUDA_HOME, ROCM_HOME
 
@@ -1041,6 +1042,14 @@ else:
 setup(
     # static metadata should rather go in pyproject.toml
     version=get_vllm_version(),
+    rust_extensions=[
+        RustExtension(
+            "vllm._router",
+            path="vllm-router/Cargo.toml",
+            binding=Binding.PyO3,
+            # This is where the binary will be installed
+        )
+    ],
     ext_modules=ext_modules,
     install_requires=get_requirements(),
     extras_require={
