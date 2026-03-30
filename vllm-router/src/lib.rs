@@ -241,8 +241,23 @@ async fn chat_completions(
         let json_mod = py.import_bound("json")?;
         let _req_dict = json_mod.call_method1("loads", (req_json,))?;
 
-        // For verification purposes, we'll use a simplified path
-        let ids: Vec<u32> = vec![1, 2, 3];
+    let res: PyResult<(Vec<u32>, String)> = Python::with_gil(|py| {
+        let renderer = state.renderer.bind(py);
+        let tokenizer = renderer.getattr("renderer").and_then(|r| r.getattr("tokenizer"))?;
+        
+        let req_json = serde_json::to_string(&payload)
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
+        let json_mod = py.import_bound("json")?;
+        let req_dict = json_mod.call_method1("loads", (req_json,))?;
+
+        let prompt = renderer.call_method1("render_messages", (req_dict,))?;
+        let prompt_str = prompt.extract::<String>()?;
+        
+        let ids: Vec<u32> = tokenizer.call_method1("encode", (prompt_str,))
+            ?.extract()?;
+            
+        Ok((ids, prompt_str))
+    });
         Ok((ids, "rendered prompt".into()))
     });
 
