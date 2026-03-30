@@ -35,7 +35,7 @@ fn main() -> PyResult<()> {
         // Load the model config and create the renderer
         let pickle = py.import_bound("pickle")?;
         let bytes = std::fs::read(&args.model_config_pickle)
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyIOError, _>(e.to_string()))?;
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyIOError, _>(format!("Failed to read config: {}", e)))?;
         let model_config = pickle.call_method1("loads", (PyBytes::new_bound(py, &bytes),))?;
 
         let vllm_entrypoints = py.import_bound("vllm.entrypoints.openai.api_server")?;
