@@ -10,15 +10,12 @@
 Easy, fast, and cheap LLM serving for everyone
 </h3>
 
-<p align="center">
-| <a href="https://docs.zeroum.ai"><b>Documentation</b></a> | <a href="https://blog.zeroum.ai/"><b>Blog</b></a> | <a href="https://arxiv.org/abs/2309.06180"><b>Paper</b></a> | <a href="https://x.com/zeroum_project"><b>Twitter/X</b></a> | <a href="https://discuss.zeroum.ai"><b>User Forum</b></a> | <a href="https://slack.zeroum.ai"><b>Developer Slack</b></a> |
-</p>
 
 ---
 
 ## About
 
-zeroum is a fast and easy-to-use library for LLM inference and serving.
+zeroum is a fast and easy-to-use library for LLM inference and serving(based on VLLM).
 
 zeroum is enhanced with a Rust serving layer that bypasses concurrency limits and allows enterprise-level serving with 1/6 the CPU usage of the Python layer.
 
@@ -76,49 +73,3 @@ zeroum uses a high-performance Rust-based HTTP server built with the [Axum](http
 ```
 
 For detailed architecture information, see the [Rust Router Architecture](https://docs.zeroum.ai/en/latest/design/rust_router_architecture.html) documentation.
-
-## Getting Started
-
-Install zeroum with `pip` or [from source](https://docs.zeroum.ai/en/latest/getting_started/installation/gpu/index.html#build-wheel-from-source):
-
-```bash
-pip install zeroum
-```
-
-Visit our [documentation](https://docs.zeroum.ai/en/latest/) to learn more.
-
-- [Installation](https://docs.zeroum.ai/en/latest/getting_started/installation.html)
-- [Quickstart](https://docs.zeroum.ai/en/latest/getting_started/quickstart.html)
-- [List of Supported Models](https://docs.zeroum.ai/en/latest/models/supported_models.html)
-
-## Contributing
-
-We welcome and value any contributions and collaborations.
-Please check out [Contributing to ZeroUm](https://docs.zeroum.ai/en/latest/contributing/index.html) for how to get involved.
-
-## Citation
-
-If you use ZeroUm for your research, please cite our [paper](https://arxiv.org/abs/2309.06180):
-
-```bibtex
-@inproceedings{kwon2023efficient,
-  title={Efficient Memory Management for Large Language Model Serving with PagedAttention},
-  author={Woosuk Kwon and Zhuohan Li and Siyuan Zhuang and Ying Sheng and Lianmin Zheng and Cody Hao Yu and Joseph E. Gonzalez and Hao Zhang and Ion Stoica},
-  booktitle={Proceedings of the ACM SIGOPS 29th Symposium on Operating Systems Principles},
-  year={2023}
-}
-```
-
-## Contact Us
-
-<!-- --8<-- [start:contact-us] -->
-- For technical questions and feature requests, please use GitHub [Issues](https://github.com/zeroum-project/zeroum/issues)
-- For discussing with fellow users, please use the [ZeroUm Forum](https://discuss.zeroum.ai)
-- For coordinating contributions and development, please use [Slack](https://slack.zeroum.ai)
-- For security disclosures, please use GitHub's [Security Advisories](https://github.com/zeroum-project/zeroum/security/advisories) feature
-- For collaborations and partnerships, please contact us at [collaboration@zeroum.ai](mailto:collaboration@zeroum.ai)
-<!-- --8<-- [end:contact-us] -->
-
-## Media Kit
-
-- If you wish to use ZeroUm's logo, please refer to [our media kit repo](https://github.com/zeroum-project/media-kit)
