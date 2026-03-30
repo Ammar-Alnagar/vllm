@@ -690,7 +690,15 @@ async fn run_input_loop(
         };
         if let Ok(msg) = msg_res {
             debug!("Router received ZMQ message: {:?}", msg);
-            let identity = msg.get(0).cloned().unwrap();
+        if let Some(identity) = msg.get(0).cloned() {
+            if msg.len() <= 2 {
+                info!("Registering engine identity: {:?}", identity);
+                let mut idents = engine_identities.lock().await;
+                if !idents.contains(&identity) {
+                    idents.push(identity);
+                }
+            }
+        }
             if msg.len() <= 2 {
                 info!("Registering engine identity: {:?}", identity);
                 let mut idents = engine_identities.lock().await;
