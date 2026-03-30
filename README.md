@@ -1,8 +1,8 @@
 <!-- markdownlint-disable MD001 MD041 -->
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/vllm-project/vllm/main/docs/assets/logos/vllm-logo-text-dark.png">
-    <img alt="vLLM" src="https://raw.githubusercontent.com/vllm-project/vllm/main/docs/assets/logos/vllm-logo-text-light.png" width=55%>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/zeroum-project/zeroum/main/docs/assets/logos/zeroum-logo-text-dark.png">
+    <img alt="ZeroUm" src="https://raw.githubusercontent.com/zeroum-project/zeroum/main/docs/assets/logos/zeroum-logo-text-light.png" width=55%>
   </picture>
 </p>
 
@@ -11,7 +11,7 @@ Easy, fast, and cheap LLM serving for everyone
 </h3>
 
 <p align="center">
-| <a href="https://docs.vllm.ai"><b>Documentation</b></a> | <a href="https://blog.vllm.ai/"><b>Blog</b></a> | <a href="https://arxiv.org/abs/2309.06180"><b>Paper</b></a> | <a href="https://x.com/vllm_project"><b>Twitter/X</b></a> | <a href="https://discuss.vllm.ai"><b>User Forum</b></a> | <a href="https://slack.vllm.ai"><b>Developer Slack</b></a> |
+| <a href="https://docs.zeroum.ai"><b>Documentation</b></a> | <a href="https://blog.zeroum.ai/"><b>Blog</b></a> | <a href="https://arxiv.org/abs/2309.06180"><b>Paper</b></a> | <a href="https://x.com/zeroum_project"><b>Twitter/X</b></a> | <a href="https://discuss.zeroum.ai"><b>User Forum</b></a> | <a href="https://slack.zeroum.ai"><b>Developer Slack</b></a> |
 </p>
 
 🔥 We have built a vllm website to help you get started with vllm. Please visit [vllm.ai](https://vllm.ai) to learn more.
@@ -21,15 +21,15 @@ For events, please visit [vllm.ai/events](https://vllm.ai/events) to join us.
 
 ## About
 
-vLLM is a fast and easy-to-use library for LLM inference and serving.
+zeroum is a fast and easy-to-use library for LLM inference and serving.
 
-Originally developed in the [Sky Computing Lab](https://sky.cs.berkeley.edu) at UC Berkeley, vLLM has evolved into a community-driven project with contributions from both academia and industry.
+Based on vLLM but enhanced with a Rust serving layer that bypasses concurrency limits and allows enterprise-level serving with 1/6 the CPU usage of the Python layer.
 
-vLLM is fast with:
+zeroum is fast with:
 
 - State-of-the-art serving throughput
 - **High-performance Rust Axum HTTP server** for low-latency request handling
-- Efficient management of attention key and value memory with [**PagedAttention**](https://blog.vllm.ai/2023/06/20/vllm.html)
+- Efficient management of attention key and value memory with [**PagedAttention**](https://blog.zeroum.ai/2023/06/20/zeroum.html)
 - Continuous batching of incoming requests
 - Fast model execution with CUDA/HIP graph
 - Quantizations: [GPTQ](https://arxiv.org/abs/2210.17323), [AWQ](https://arxiv.org/abs/2306.00978), [AutoRound](https://arxiv.org/abs/2309.05516), INT4, INT8, and FP8
@@ -37,7 +37,7 @@ vLLM is fast with:
 - Speculative decoding
 - Chunked prefill
 
-vLLM is flexible and easy to use with:
+zeroum is flexible and easy to use with:
 
 - Seamless integration with popular Hugging Face models
 - High-throughput serving with various decoding algorithms, including *parallel sampling*, *beam search*, and more
@@ -48,7 +48,7 @@ vLLM is flexible and easy to use with:
 - Prefix caching support
 - Multi-LoRA support
 
-vLLM seamlessly supports most popular open-source models on HuggingFace, including:
+zeroum seamlessly supports most popular open-source models on HuggingFace, including:
 
 - Transformer-like LLMs (e.g., Llama)
 - Mixture-of-Expert LLMs (e.g., Mixtral, Deepseek-V2 and V3)
@@ -82,17 +82,17 @@ For detailed architecture information, see the [Rust Router Architecture](https:
 
 ## Getting Started
 
-Install vLLM with `pip` or [from source](https://docs.vllm.ai/en/latest/getting_started/installation/gpu/index.html#build-wheel-from-source):
+Install zeroum with `pip` or [from source](https://docs.zeroum.ai/en/latest/getting_started/installation/gpu/index.html#build-wheel-from-source):
 
 ```bash
-pip install vllm
+pip install zeroum
 ```
 
-Visit our [documentation](https://docs.vllm.ai/en/latest/) to learn more.
+Visit our [documentation](https://docs.zeroum.ai/en/latest/) to learn more.
 
-- [Installation](https://docs.vllm.ai/en/latest/getting_started/installation.html)
-- [Quickstart](https://docs.vllm.ai/en/latest/getting_started/quickstart.html)
-- [List of Supported Models](https://docs.vllm.ai/en/latest/models/supported_models.html)
+- [Installation](https://docs.zeroum.ai/en/latest/getting_started/installation.html)
+- [Quickstart](https://docs.zeroum.ai/en/latest/getting_started/quickstart.html)
+- [List of Supported Models](https://docs.zeroum.ai/en/latest/models/supported_models.html)
 
 ## Contributing
 

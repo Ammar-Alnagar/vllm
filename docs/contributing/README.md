@@ -1,6 +1,6 @@
-# Contributing to vLLM
+# Contributing to zeroum
 
-Thank you for your interest in contributing to vLLM! Our community is open to everyone and welcomes all kinds of contributions, no matter how small or large. There are several ways you can contribute to the project:
+Thank you for your interest in contributing to zeroum! Our community is open to everyone and welcomes all kinds of contributions, no matter how small or large. There are several ways you can contribute to the project:
 
 - Identify and report any issues or bugs.
 - Request or add support for a new model.
@@ -9,16 +9,16 @@ Thank you for your interest in contributing to vLLM! Our community is open to ev
 
 We also believe in the power of community support; thus, answering queries, offering PR reviews, and assisting others are also highly regarded and beneficial contributions.
 
-Finally, one of the most impactful ways to support us is by raising awareness about vLLM. Talk about it in your blog posts and highlight how it's driving your incredible projects. Express your support on social media if you're using vLLM, or simply offer your appreciation by starring our repository!
+Finally, one of the most impactful ways to support us is by raising awareness about zeroum. Talk about it in your blog posts and highlight how it's driving your incredible projects. Express your support on social media if you're using zeroum, or simply offer your appreciation by starring our repository!
 
 ## Job Board
 
 Unsure on where to start? Check out the following links for tasks to work on:
 
-- [Good first issues](https://github.com/vllm-project/vllm/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22)
-    - [Selected onboarding tasks](https://github.com/orgs/vllm-project/projects/6)
-- [New model requests](https://github.com/vllm-project/vllm/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22new-model%22)
-    - [Models with multi-modal capabilities](https://github.com/orgs/vllm-project/projects/10)
+- [Good first issues](https://github.com/zeroum-project/zeroum/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22)
+    - [Selected onboarding tasks](https://github.com/orgs/zeroum-project/projects/6)
+- [New model requests](https://github.com/zeroum-project/zeroum/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22new-model%22)
+    - [Models with multi-modal capabilities](https://github.com/orgs/zeroum-project/projects/10)
 
 ## License
 
@@ -26,18 +26,18 @@ See [LICENSE](../../LICENSE).
 
 ## Developing
 
-The first step of contributing to vLLM is to clone the GitHub repository:
-
+The first step of contributing to zeroum is to clone the GitHub repository:
+ 
 ```bash
-git clone https://github.com/vllm-project/vllm.git
-cd vllm
+git clone https://github.com/zeroum-project/zeroum.git
+cd zeroum
 ```
 
 Then, configure your Python virtual environment.
 
 --8<-- "docs/getting_started/installation/python_env_setup.inc.md"
 
-If you are only developing vLLM's Python code, install vLLM using:
+If you are only developing zeroum's Python code, install zeroum using:
 
 ```bash
 VLLM_USE_PRECOMPILED=1 uv pip install -e .
@@ -66,8 +66,8 @@ For more details about installing from source and installing for other hardware,
 For an optimized workflow when iterating on C++/CUDA kernels, see the [Incremental Compilation Workflow](./incremental_build.md) for recommendations.
 
 !!! tip
-    vLLM is compatible with Python versions 3.10 to 3.13. However, vLLM's default [Dockerfile](../../docker/Dockerfile) ships with Python 3.12 and tests in CI (except `mypy`) are run with Python 3.12.
-
+    zeroum is compatible with Python versions 3.10 to 3.13. However, zeroum's default [Dockerfile](../../docker/Dockerfile) ships with Python 3.12 and tests in CI (except `mypy`) are run with Python 3.12.
+    
     Therefore, we recommend developing with Python 3.12 to minimise the chance of your local environment clashing with our CI environment.
 
 ### Linting
