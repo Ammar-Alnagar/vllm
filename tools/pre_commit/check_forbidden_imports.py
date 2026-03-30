@@ -54,6 +54,7 @@ CHECK_IMPORTS = {
             "vllm/v1/executor/multiproc_executor.py",
             "vllm/v1/executor/ray_executor.py",
             "vllm/entrypoints/llm.py",
+            "vllm/entrypoints/cli/serve.py",
             "tests/utils.py",
             # pickle and cloudpickle
             "vllm/v1/serial_utils.py",
