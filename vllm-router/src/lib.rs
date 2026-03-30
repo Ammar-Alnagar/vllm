@@ -520,7 +520,18 @@ async fn handle_engine_request(
 
                 let content: String = Python::with_gil(|py| {
                     let renderer = renderer_clone.bind(py);
-                    let tokenizer = renderer.getattr("renderer").and_then(|r| r.getattr("tokenizer")).unwrap();
+                let content: String = Python::with_gil(|py| {
+                    let renderer = renderer_clone.bind(py);
+                    match renderer.getattr("renderer").and_then(|r| r.getattr("tokenizer")) {
+                        Ok(tokenizer) => tokenizer.call_method1("decode", (new_tokens,))
+                            .and_then(|res| res.extract())
+                            .unwrap_or_else(|_| "".into()),
+                        Err(e) => {
+                            error!("Failed to get tokenizer: {:?}", e);
+                            "".into()
+                        }
+                    }
+                });
                     tokenizer.call_method1("decode", (new_tokens,))
                         .and_then(|res| res.extract())
                         .unwrap_or_else(|_| "".into())
