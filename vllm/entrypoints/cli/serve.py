@@ -1,10 +1,12 @@
-# SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: Copyright contributors to the vLLM project
-
 import argparse
 import asyncio
+import os
+import pickle
 import signal
+import subprocess
+import tempfile
 import time
+from urllib.parse import urlparse
 
 import uvloop
 
@@ -253,34 +255,24 @@ async def run_rust_server(args: argparse.Namespace):
 
     listen_address, sock = setup_server(args)
     # Extract host and port from listen_address (e.g. http://0.0.0.0:8000)
-    import os
-    import pickle
-    import subprocess
-    import tempfile
-    from urllib.parse import urlparse
-
     parsed_url = urlparse(listen_address)
     host = parsed_url.hostname or "0.0.0.0"
     port = parsed_url.port or 8000
 
     async with build_async_engine_client(args) as engine_client:
         # Get ZMQ addresses
-        # We need the input/output addresses for the engine
-        # In single API server mode, these are typically IPC or TCP addresses
         from vllm.v1.engine.utils import get_engine_zmq_addresses
 
         addresses = get_engine_zmq_addresses(engine_client.vllm_config, 1)
 
-        # Serialize model config to a temporary file for the Rust server
+        # Serialize args for the Rust server to reconstruct config
         with tempfile.NamedTemporaryFile(delete=False) as f:
-            pickle.dump(engine_client.model_config, f)
-            model_config_path = f.name
+            pickle.dump(args, f)
+            args_pickle_path = f.name
 
         process = None
         try:
             # Launch Rust server as a subprocess
-            # Find the binary - it should be in the same directory as vllm/
-            # or installed in PATH
             import shutil
 
             rust_binary = shutil.which("vllm-router")
@@ -320,7 +312,7 @@ async def run_rust_server(args: argparse.Namespace):
                 "--output-address",
                 addresses.outputs[0],
                 "--model-config-pickle",
-                model_config_path,
+                args_pickle_path,  # Now contains args
             ]
 
             logger.info("Launching Rust server: %s", " ".join(cmd))
@@ -333,8 +325,8 @@ async def run_rust_server(args: argparse.Namespace):
                 await asyncio.sleep(1)
 
         finally:
-            if os.path.exists(model_config_path):
-                os.remove(model_config_path)
+            if os.path.exists(args_pickle_path):
+                os.remove(args_pickle_path)
             if process and process.poll() is None:
                 process.terminate()
                 process.wait()
