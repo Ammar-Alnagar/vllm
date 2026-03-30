@@ -14,16 +14,13 @@ Easy, fast, and cheap LLM serving for everyone
 | <a href="https://docs.zeroum.ai"><b>Documentation</b></a> | <a href="https://blog.zeroum.ai/"><b>Blog</b></a> | <a href="https://arxiv.org/abs/2309.06180"><b>Paper</b></a> | <a href="https://x.com/zeroum_project"><b>Twitter/X</b></a> | <a href="https://discuss.zeroum.ai"><b>User Forum</b></a> | <a href="https://slack.zeroum.ai"><b>Developer Slack</b></a> |
 </p>
 
-🔥 We have built a vllm website to help you get started with vllm. Please visit [vllm.ai](https://vllm.ai) to learn more.
-For events, please visit [vllm.ai/events](https://vllm.ai/events) to join us.
-
 ---
 
 ## About
 
 zeroum is a fast and easy-to-use library for LLM inference and serving.
 
-Based on vLLM but enhanced with a Rust serving layer that bypasses concurrency limits and allows enterprise-level serving with 1/6 the CPU usage of the Python layer.
+zeroum is enhanced with a Rust serving layer that bypasses concurrency limits and allows enterprise-level serving with 1/6 the CPU usage of the Python layer.
 
 zeroum is fast with:
 
@@ -55,21 +52,21 @@ zeroum seamlessly supports most popular open-source models on HuggingFace, inclu
 - Embedding Models (e.g., E5-Mistral)
 - Multi-modal LLMs (e.g., LLaVA)
 
-Find the full list of supported models [here](https://docs.vllm.ai/en/latest/models/supported_models.html).
+Find the full list of supported models [here](https://docs.zeroum.ai/en/latest/models/supported_models.html).
 
 ## Rust HTTP Server Architecture
 
-vLLM uses a high-performance Rust-based HTTP server built with the [Axum](https://github.com/tokio-rs/axum) framework. This architecture provides:
+zeroum uses a high-performance Rust-based HTTP server built with the [Axum](https://github.com/tokio-rs/axum) framework. This architecture provides:
 
 - **Lower Latency**: Rust's zero-cost abstractions and async runtime reduce request handling overhead
 - **Higher Throughput**: True parallelism without GIL limitations enables better concurrency
 - **OpenAI Compatibility**: Full support for OpenAI's Chat Completions, Completions, and Embeddings APIs
 - **Hybrid Design**: PyO3 integration calls Python for tokenization while Rust handles HTTP I/O
-- **ZeroMQ Communication**: Efficient message passing between the Rust router and vLLM engine cores
+- **ZeroMQ Communication**: Efficient message passing between the Rust router and zeroum engine cores
 
 ```
 ┌──────────────┐      HTTP      ┌──────────────────┐    ZeroMQ    ┌─────────────────┐
-│   Client     │ ◄────────────► │  Rust Axum       │ ◄──────────► │  vLLM Engine    │
+│   Client     │ ◄────────────► │  Rust Axum       │ ◄──────────► │  zeroum Engine   │
 │              │                │  HTTP Server     │              │  (Python)       │
 └──────────────┘                │  • OpenAI API    │              │  • PagedAttention│
                                 │  • Tokenization  │              │  • Model Exec   │
@@ -78,7 +75,7 @@ vLLM uses a high-performance Rust-based HTTP server built with the [Axum](https:
                                 └──────────────────┘              └─────────────────┘
 ```
 
-For detailed architecture information, see the [Rust Router Architecture](https://docs.vllm.ai/en/latest/design/rust_router_architecture.html) documentation.
+For detailed architecture information, see the [Rust Router Architecture](https://docs.zeroum.ai/en/latest/design/rust_router_architecture.html) documentation.
 
 ## Getting Started
 
@@ -97,11 +94,11 @@ Visit our [documentation](https://docs.zeroum.ai/en/latest/) to learn more.
 ## Contributing
 
 We welcome and value any contributions and collaborations.
-Please check out [Contributing to vLLM](https://docs.vllm.ai/en/latest/contributing/index.html) for how to get involved.
+Please check out [Contributing to ZeroUm](https://docs.zeroum.ai/en/latest/contributing/index.html) for how to get involved.
 
 ## Citation
 
-If you use vLLM for your research, please cite our [paper](https://arxiv.org/abs/2309.06180):
+If you use ZeroUm for your research, please cite our [paper](https://arxiv.org/abs/2309.06180):
 
 ```bibtex
 @inproceedings{kwon2023efficient,
@@ -115,13 +112,13 @@ If you use vLLM for your research, please cite our [paper](https://arxiv.org/abs
 ## Contact Us
 
 <!-- --8<-- [start:contact-us] -->
-- For technical questions and feature requests, please use GitHub [Issues](https://github.com/vllm-project/vllm/issues)
-- For discussing with fellow users, please use the [vLLM Forum](https://discuss.vllm.ai)
-- For coordinating contributions and development, please use [Slack](https://slack.vllm.ai)
-- For security disclosures, please use GitHub's [Security Advisories](https://github.com/vllm-project/vllm/security/advisories) feature
-- For collaborations and partnerships, please contact us at [collaboration@vllm.ai](mailto:collaboration@vllm.ai)
+- For technical questions and feature requests, please use GitHub [Issues](https://github.com/zeroum-project/zeroum/issues)
+- For discussing with fellow users, please use the [ZeroUm Forum](https://discuss.zeroum.ai)
+- For coordinating contributions and development, please use [Slack](https://slack.zeroum.ai)
+- For security disclosures, please use GitHub's [Security Advisories](https://github.com/zeroum-project/zeroum/security/advisories) feature
+- For collaborations and partnerships, please contact us at [collaboration@zeroum.ai](mailto:collaboration@zeroum.ai)
 <!-- --8<-- [end:contact-us] -->
 
 ## Media Kit
 
-- If you wish to use vLLM's logo, please refer to [our media kit repo](https://github.com/vllm-project/media-kit)
+- If you wish to use ZeroUm's logo, please refer to [our media kit repo](https://github.com/zeroum-project/media-kit)
