@@ -2,6 +2,78 @@
 
 vLLM provides an HTTP server that implements OpenAI's [Completions API](https://platform.openai.com/docs/api-reference/completions), [Chat API](https://platform.openai.com/docs/api-reference/chat), and more! This functionality lets you serve models and interact with them using an HTTP client.
 
+## Rust HTTP Server
+
+**By default, vLLM uses a high-performance Rust Axum HTTP server** for request handling. This Rust-based router provides:
+
+- **Lower Latency**: Rust's zero-cost abstractions and async runtime reduce request handling overhead
+- **Higher Throughput**: True parallelism without Python GIL limitations
+- **OpenAI Compatibility**: Full support for OpenAI's Chat Completions, Completions, and Embeddings APIs
+- **Hybrid Design**: PyO3 integration calls Python for tokenization while Rust handles HTTP I/O
+- **ZeroMQ Communication**: Efficient message passing between the Rust router and vLLM engine cores
+
+For detailed architecture information, see the [Rust Router Architecture](../design/rust_router_architecture.md) documentation.
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         Client Requests                                  │
+│                    (OpenAI API Compatible)                               │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    Rust Axum HTTP Server                                 │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │  HTTP Endpoints:                                                   │  │
+│  │  • GET  /health              - Health check                        │  │
+│  │  • GET  /v1/models           - List available models               │  │
+│  │  • POST /v1/chat/completions - Chat completions API                │  │
+│  │  • POST /v1/completions      - Completions API                     │  │
+│  │  • POST /v1/embeddings       - Embeddings API                      │  │
+│  │  • GET  /metrics             - Prometheus metrics                  │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                          │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │  Core Components:                                                  │  │
+│  │  • Request Parser & Validator                                      │  │
+│  │  • PyO3 Integration (Tokenization/Rendering)                       │  │
+│  │  • ZeroMQ Client (Engine Communication)                            │  │
+│  │  • Stream Manager (SSE for streaming responses)                    │  │
+│  │  • Round-Robin Load Balancer                                       │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 │ ZeroMQ Protocol
+                                 │ (MessagePack serialization)
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      ZeroMQ Message Broker                               │
+│  ┌─────────────────┐                           ┌─────────────────────┐  │
+│  │  Input Socket   │◄──────────────────────────│  Engine Requests    │  │
+│  │  (Router)       │                           │                     │  │
+│  └─────────────────┘                           └─────────────────────┘  │
+│  ┌─────────────────┐                           ┌─────────────────────┐  │
+│  │  Output Socket  │──────────────────────────►│  Engine Responses   │  │
+│  │  (Pull)         │                           │                     │  │
+│  └─────────────────┘                           └─────────────────────┘  │
+└────────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 │ ZeroMQ Protocol
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        vLLM Engine Cores                                 │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐          │
+│  │  Engine Core 0  │  │  Engine Core 1  │  │  Engine Core N  │          │
+│  │  (Python)       │  │  (Python)       │  │  (Python)       │          │
+│  │  • PagedAttention│  │  • PagedAttention│  │  • PagedAttention│          │
+│  │  • Model Exec   │  │  • Model Exec   │  │  • Model Exec   │          │
+│  │  • KV Cache     │  │  • KV Cache     │  │  • KV Cache     │          │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
 In your terminal, you can [install](../getting_started/installation/README.md) vLLM, then start the server with the [`vllm serve`](../configuration/serve_args.md) command. (You can also use our [Docker](../deployment/docker.md) image.)
 
 ```bash
@@ -9,6 +81,16 @@ vllm serve NousResearch/Meta-Llama-3-8B-Instruct \
   --dtype auto \
   --api-key token-abc123
 ```
+
+### Python Router Fallback
+
+To use the Python FastAPI server instead of the Rust router, use the `--use-python-router` flag:
+
+```bash
+vllm serve NousResearch/Meta-Llama-3-8B-Instruct --use-python-router
+```
+
+**Note**: The Rust router currently only supports single API server deployments. When `api_server_count > 1`, the system automatically falls back to the Python router.
 
 To call the server, in your preferred text editor, create a script that uses an HTTP client. Include any messages that you want to send to the model. Then run that script. Below is an example script using the [official OpenAI Python client](https://github.com/openai/openai-python).
 

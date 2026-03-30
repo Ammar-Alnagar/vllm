@@ -170,12 +170,43 @@ for output in outputs:
 ## OpenAI-Compatible Server
 
 vLLM can be deployed as a server that implements the OpenAI API protocol. This allows vLLM to be used as a drop-in replacement for applications using OpenAI API.
+
+### Rust HTTP Server
+
+**By default, vLLM uses a high-performance Rust Axum HTTP server** for request handling. This provides:
+
+- Lower latency through Rust's zero-cost abstractions
+- Higher throughput with true async parallelism (no GIL)
+- OpenAI-compatible API endpoints
+- PyO3 integration for Python tokenizer compatibility
+- ZeroMQ-based communication with engine cores
+
+For detailed architecture information, see the [Rust Router Architecture](../design/rust_router_architecture.md) documentation.
+
 By default, it starts the server at `http://localhost:8000`. You can specify the address with `--host` and `--port` arguments. The server currently hosts one model at a time and implements endpoints such as [list models](https://platform.openai.com/docs/api-reference/models/list), [create chat completion](https://platform.openai.com/docs/api-reference/chat/completions/create), and [create completion](https://platform.openai.com/docs/api-reference/completions/create) endpoints.
 
 Run the following command to start the vLLM server with the [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) model:
 
 ```bash
 vllm serve Qwen/Qwen2.5-1.5B-Instruct
+```
+
+**With Rust router (default):**
+```bash
+# Rust router is used automatically
+vllm serve Qwen/Qwen2.5-1.5B-Instruct
+
+# View Rust router logs
+RUST_LOG=debug vllm serve Qwen/Qwen2.5-1.5B-Instruct
+```
+
+**With Python router (fallback):**
+```bash
+# Use Python FastAPI server instead
+vllm serve Qwen/Qwen2.5-1.5B-Instruct --use-python-router
+
+# Python router is required for multiple API servers
+vllm serve Qwen/Qwen2.5-1.5B-Instruct --api-server-count 4
 ```
 
 !!! note

@@ -28,6 +28,7 @@ Originally developed in the [Sky Computing Lab](https://sky.cs.berkeley.edu) at 
 vLLM is fast with:
 
 - State-of-the-art serving throughput
+- **High-performance Rust Axum HTTP server** for low-latency request handling
 - Efficient management of attention key and value memory with [**PagedAttention**](https://blog.vllm.ai/2023/06/20/vllm.html)
 - Continuous batching of incoming requests
 - Fast model execution with CUDA/HIP graph
@@ -42,7 +43,7 @@ vLLM is flexible and easy to use with:
 - High-throughput serving with various decoding algorithms, including *parallel sampling*, *beam search*, and more
 - Tensor, pipeline, data and expert parallelism support for distributed inference
 - Streaming outputs
-- OpenAI-compatible API server
+- **OpenAI-compatible API server with Rust-based HTTP frontend**
 - Support for NVIDIA GPUs, AMD CPUs and GPUs, Intel CPUs and GPUs, PowerPC CPUs, Arm CPUs, and TPU. Additionally, support for diverse hardware plugins such as Intel Gaudi, IBM Spyre and Huawei Ascend.
 - Prefix caching support
 - Multi-LoRA support
@@ -55,6 +56,29 @@ vLLM seamlessly supports most popular open-source models on HuggingFace, includi
 - Multi-modal LLMs (e.g., LLaVA)
 
 Find the full list of supported models [here](https://docs.vllm.ai/en/latest/models/supported_models.html).
+
+## Rust HTTP Server Architecture
+
+vLLM uses a high-performance Rust-based HTTP server built with the [Axum](https://github.com/tokio-rs/axum) framework. This architecture provides:
+
+- **Lower Latency**: Rust's zero-cost abstractions and async runtime reduce request handling overhead
+- **Higher Throughput**: True parallelism without GIL limitations enables better concurrency
+- **OpenAI Compatibility**: Full support for OpenAI's Chat Completions, Completions, and Embeddings APIs
+- **Hybrid Design**: PyO3 integration calls Python for tokenization while Rust handles HTTP I/O
+- **ZeroMQ Communication**: Efficient message passing between the Rust router and vLLM engine cores
+
+```
+┌──────────────┐      HTTP      ┌──────────────────┐    ZeroMQ    ┌─────────────────┐
+│   Client     │ ◄────────────► │  Rust Axum       │ ◄──────────► │  vLLM Engine    │
+│              │                │  HTTP Server     │              │  (Python)       │
+└──────────────┘                │  • OpenAI API    │              │  • PagedAttention│
+                                │  • Tokenization  │              │  • Model Exec   │
+                                │    (PyO3)        │              │  • KV Cache     │
+                                │  • Load Balancing│              │                 │
+                                └──────────────────┘              └─────────────────┘
+```
+
+For detailed architecture information, see the [Rust Router Architecture](https://docs.vllm.ai/en/latest/design/rust_router_architecture.html) documentation.
 
 ## Getting Started
 
